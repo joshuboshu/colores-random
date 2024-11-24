@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colores Aleatorios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Encabezado principal -->
+    <header>
+        <button class="btn-lista" aria-label="Ver lista de colores guardados">Lista</button>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="main">
+        <section class="container">
+            <dialog id="color-list-dialog" aria-labelledby="dialog-title">
+                <h3 id="dialog-title">Lista de Colores que te gustaron</h3>
+                <ul id="color-list">
+                    <!-- Lista dinámica de colores -->
+                </ul>
+            </dialog>
+
+            <!-- Código del color -->
+            <h2 id="color-code" aria-live="polite" aria-label="Código del color actual">#fff</h2>
+            <h2 id="color-rgb" aria-live="polite" aria-label="RGB del color actual">(rgb(0, 0, 0))</h2>
+
+            <!-- Controles -->
+            <div class="controls">
+                <button class="btn anterior" aria-label="Ver color anterior">Anterior</button>
+                <button id="btn" class="btn" aria-label="Generar un nuevo color">Generar Color</button>
+                <button class="btn agregar" aria-label="Agregar color actual a la lista">Agregar</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+
+</html>

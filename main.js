@@ -15,6 +15,38 @@ const hexToRgb = (hex) => {
     return `rgb(${r}, ${g}, ${b})`;
 };
 
+// Función para mostrar un toast de guardado exitoso
+const showToast = (message) => {
+    const toast = document.createElement("div");
+    toast.innerText = message;
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "15px 20px";
+    toast.style.backgroundColor = "#4caf50";
+    toast.style.color = "#fff";
+    toast.style.fontSize = "1rem";
+    toast.style.borderRadius = "5px";
+    toast.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.2)";
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+    toast.style.transform = "translateY(20px)";
+    document.body.appendChild(toast);
+
+    // Mostrar el toast
+    setTimeout(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+    }, 100);
+
+    // Ocultar el toast después de 3 segundos
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(20px)";
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
+
 // Función para cargar colores guardados desde el backend
 const loadSavedColors = async () => {
     try {
@@ -135,6 +167,9 @@ const saveColorToBackend = async (hexCode, rgbValue) => {
             console.log("Color guardado con ID:", data.id);
             colorList.push({ id: data.id, hex_code: hexCode, rgb_value: rgbValue });
             updateColorList();
+
+            // Mostrar toast de éxito
+            showToast("Color guardado exitosamente en favoritos.");
         }
     } catch (error) {
         console.error("Error al guardar el color:", error);

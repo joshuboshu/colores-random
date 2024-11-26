@@ -19,31 +19,6 @@ const hexToRgb = (hex) => {
     return `rgb(${r}, ${g}, ${b})`;
 };
 
-// Guardar color al backend
-const saveColorToBackend = async (hexCode, rgbValue) => {
-    try {
-        console.log("Saving color to backend:", { hexCode, rgbValue }); // Debug log
-        const response = await fetch("http://127.0.0.1:9000/save_color", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                hex_code: hexCode,
-                rgb_value: rgbValue,
-            }),
-        });
-
-        const data = await response.json();
-        console.log("Backend response:", data);  // Debug log
-        if (data.message === "Color guardado correctamente!") {
-            console.log("Color guardado con éxito");
-        }
-    } catch (error) {
-        console.error("Error al guardar el color:", error);
-    }
-};
-
 // Función para obtener colores guardados desde el backend
 const loadSavedColors = async () => {
     try {
@@ -84,74 +59,136 @@ const updateColorList = (colors = colorList) => {
     console.log("Valid colors:", validColors); // Debug log
 
     dialog.innerHTML = `
-        <h3>Lista de Colores Favoritos</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-            <thead>
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.8rem; font-weight: 600; margin: 0; color: #333;">Lista de Colores Favoritos</h3>
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;">
+            <thead style="background-color: #f7f7f7;">
                 <tr>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: left;">Color</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: left;">Código Hex</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: left;">Valor RGB</th>
-                    <th style="border: 1px solid #000; padding: 8px; text-align: left;">Acción</th>
+                    <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left;">Color</th>
+                    <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left;">Código Hex</th>
+                    <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left;">Valor RGB</th>
+                    <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left;">Acción</th>
                 </tr>
             </thead>
             <tbody>
                 ${validColors
-                    .map((color, index) => {
-                        // Si el color es un objeto, obtenemos hex_code de ahí
-                        if (color.hex_code) {
-                            const rgbColor = hexToRgb(color.hex_code);
-                            return `
-                                <tr>
-                                    <td style="border: 1px solid #000; padding: 8px;">
-                                        <span style="display: inline-block; width: 20px; height: 20px; background-color: ${color.hex_code}; border: 1px solid #000;"></span>
-                                    </td>
-                                    <td style="border: 1px solid #000; padding: 8px;">${color.hex_code}</td>
-                                    <td style="border: 1px solid #000; padding: 8px;">${rgbColor}</td>
-                                    <td style="border: 1px solid #000; padding: 8px;">
-                                        <button onclick="deleteColor(${index})">Eliminar</button>
-                                    </td>
-                                </tr>`;
-                        } else if (typeof color === 'string') {
-                            // Si es un string (como '#268623'), lo mostramos directamente
-                            const rgbColor = hexToRgb(color);
-                            return `
-                                <tr>
-                                    <td style="border: 1px solid #000; padding: 8px;">
-                                        <span style="display: inline-block; width: 20px; height: 20px; background-color: ${color}; border: 1px solid #000;"></span>
-                                    </td>
-                                    <td style="border: 1px solid #000; padding: 8px;">${color}</td>
-                                    <td style="border: 1px solid #000; padding: 8px;">${rgbColor}</td>
-                                    <td style="border: 1px solid #000; padding: 8px;">
-                                        <button onclick="deleteColor(${index})">Eliminar</button>
-                                    </td>
-                                </tr>`;
-                        }
-                    })
-                    .join("")}
+            .map((color, index) => {
+                const hex = color.hex_code || color;
+                const rgbColor = hexToRgb(hex);
+                return `
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 10px; text-align: center;">
+                                    <span style="display: inline-block; width: 30px; height: 30px; background-color: ${hex}; border: 1px solid #ddd; border-radius: 50%;"></span>
+                                </td>
+                                <td style="padding: 10px; text-align: center; color: #555;">${hex}</td>
+                                <td style="padding: 10px; text-align: center; color: #555;">${rgbColor}</td>
+                                <td style="padding: 10px; text-align: center;">
+                                    <button 
+                                        style="
+                                            padding: 5px 10px; 
+                                            font-size: 0.8rem; 
+                                            color: #fff; 
+                                            background-color: #ff4d4d; 
+                                            border: none; 
+                                            border-radius: 4px; 
+                                            cursor: pointer;
+                                            transition: background-color 0.3s ease;"
+                                        onclick="deleteColor(${index})">
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>`;
+            })
+            .join("")}
             </tbody>
         </table>
-        <button id="close-dialog" style="margin-top: 10px; padding: 8px 12px; cursor: pointer;">Cerrar</button>
-    `;
+    </div>
+    <div style="text-align: center; margin-top: 1.5rem;">
+        <button id="close-dialog" style="
+            padding: 10px 20px; 
+            font-size: 1rem; 
+            color: #fff; 
+            background-color: #007bff; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease;">
+            Cerrar
+        </button>
+    </div>
+`;
 
-    // Agregar funcionalidad para cerrar el diálogo
-    document.getElementById("close-dialog").addEventListener("click", () => {
-        dialog.close();
-    });
+    // Añadir evento para cerrar el diálogo
+    document.getElementById("close-dialog").addEventListener("click", () => dialog.close());
+
 };
 
-// Función para eliminar un color de la lista
-const deleteColor = (index) => {
+const deleteColor = async (index) => {
     let savedColors = JSON.parse(localStorage.getItem('savedColors')) || [];
+    const colorToDelete = savedColors[index];
 
-    // Eliminar el color de la lista de colores
-    savedColors.splice(index, 1);
+    if (!colorToDelete || !colorToDelete.id) {
+        console.error("El color a eliminar no tiene un ID válido:", colorToDelete);
+        return;
+    }
 
-    // Actualizar la lista en localStorage
-    localStorage.setItem('savedColors', JSON.stringify(savedColors));
+    try {
+        // Enviar solicitud DELETE al backend con el ID del color
+        const response = await fetch(`http://127.0.0.1:9000/delete_color/${colorToDelete.id}`, {
+            method: "DELETE",
+        });
 
-    // Actualizar la vista del modal
-    updateColorList(savedColors);
+        if (!response.ok) {
+            throw new Error(`Error al eliminar el color: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log(result.message); // Mensaje de éxito del backend
+
+        // Eliminar el color de la lista local
+        savedColors.splice(index, 1);
+
+        // Actualizar la lista en localStorage
+        localStorage.setItem('savedColors', JSON.stringify(savedColors));
+
+        // Actualizar la vista del modal
+        updateColorList(savedColors);
+    } catch (error) {
+        console.error("Error al eliminar el color:", error);
+    }
 };
+
+// Función para guardar un nuevo color
+const saveColorToBackend = async (hexCode, rgbValue) => {
+    try {
+        const response = await fetch("http://127.0.0.1:9000/save_color", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                hex_code: hexCode,
+                rgb_value: rgbValue,
+            }),
+        });
+
+        const data = await response.json();
+        if (data.id) {
+            console.log("ID del color guardado:", data.id); // Depuración
+
+            // Guardar el color con ID en localStorage
+            let savedColors = JSON.parse(localStorage.getItem('savedColors')) || [];
+            savedColors.push({ id: data.id, hex_code: hexCode, rgb_value: rgbValue });
+            localStorage.setItem('savedColors', JSON.stringify(savedColors));
+        }
+    } catch (error) {
+        console.error("Error al guardar el color:", error);
+    }
+};
+
+
 
 // Función para generar un color aleatorio y aplicar los cambios
 const getcolor = () => {

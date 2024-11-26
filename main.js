@@ -15,15 +15,15 @@ const hexToRgb = (hex) => {
     return `rgb(${r}, ${g}, ${b})`;
 };
 
-// Función para mostrar un toast de guardado exitoso
-const showToast = (message) => {
+// Función para mostrar un toast de mensaje
+const showToast = (message, color = "#4caf50") => {
     const toast = document.createElement("div");
     toast.innerText = message;
     toast.style.position = "fixed";
     toast.style.bottom = "20px";
     toast.style.right = "20px";
     toast.style.padding = "15px 20px";
-    toast.style.backgroundColor = "#4caf50";
+    toast.style.backgroundColor = color;
     toast.style.color = "#fff";
     toast.style.fontSize = "1rem";
     toast.style.borderRadius = "5px";
@@ -148,6 +148,9 @@ const deleteColor = async (index) => {
         // Actualizamos la lista local y la interfaz
         colorList.splice(index, 1);
         updateColorList();
+
+        // Mostrar toast de éxito al eliminar
+        showToast("Color eliminado exitosamente.", "#ff4d4d");
     } catch (error) {
         console.error("Error al eliminar el color:", error);
     }
@@ -168,7 +171,7 @@ const saveColorToBackend = async (hexCode, rgbValue) => {
             colorList.push({ id: data.id, hex_code: hexCode, rgb_value: rgbValue });
             updateColorList();
 
-            // Mostrar toast de éxito
+            // Mostrar toast de éxito al guardar
             showToast("Color guardado exitosamente en favoritos.");
         }
     } catch (error) {

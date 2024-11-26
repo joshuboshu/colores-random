@@ -126,39 +126,55 @@ const updateColorList = (colors = colorList) => {
 };
 
 const deleteColor = async (index) => {
-    let savedColors = JSON.parse(localStorage.getItem('savedColors')) || [];
-    const colorToDelete = savedColors[index];
-
-    if (!colorToDelete || !colorToDelete.id) {
-        console.error("El color a eliminar no tiene un ID válido:", colorToDelete);
-        return;
-    }
-
     try {
-        // Enviar solicitud DELETE al backend con el ID del color
+        // Recuperar los colores guardados
+        const savedColors = JSON.parse(localStorage.getItem('savedColors')) || [];
+
+        // Verificar si el índice es válido
+        if (index < 0 || index >= savedColors.length) {
+            console.error(`Índice fuera de rango: ${index}`);
+            return;
+        }
+
+        const colorToDelete = savedColors[index];
+
+        // Verificar si el color tiene un ID válido
+        if (!colorToDelete?.id) {
+            console.error("El color a eliminar no tiene un ID válido:", colorToDelete);
+            return;
+        }
+
+        // Enviar solicitud DELETE al backend
         const response = await fetch(`http://127.0.0.1:9000/delete_color/${colorToDelete.id}`, {
             method: "DELETE",
         });
 
         if (!response.ok) {
-            throw new Error(`Error al eliminar el color: ${response.statusText}`);
+            throw new Error(`Error al eliminar el color: ${response.status} - ${response.statusText}`);
         }
 
         const result = await response.json();
         console.log(result.message); // Mensaje de éxito del backend
 
-        // Eliminar el color de la lista local
-        savedColors.splice(index, 1);
-
-        // Actualizar la lista en localStorage
-        localStorage.setItem('savedColors', JSON.stringify(savedColors));
-
-        // Actualizar la vista del modal
-        updateColorList(savedColors);
+        // Actualizar la lista local y la vista
+        removeColorFromLocalStorage(index);
     } catch (error) {
-        console.error("Error al eliminar el color:", error);
+        console.error("Error al eliminar el color:", error.message || error);
     }
 };
+
+// Función para actualizar el localStorage y la vista
+const removeColorFromLocalStorage = (index) => {
+    const savedColors = JSON.parse(localStorage.getItem('savedColors')) || [];
+    savedColors.splice(index, 1); // Eliminar el color del array
+
+    // Actualizar el almacenamiento local
+    localStorage.setItem('savedColors', JSON.stringify(savedColors));
+
+    // Actualizar la vista del modal o cualquier interfaz
+    updateColorList(savedColors);
+};
+
 
 // Función para guardar un nuevo color
 const saveColorToBackend = async (hexCode, rgbValue) => {
